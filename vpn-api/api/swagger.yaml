@@ -1,0 +1,390 @@
+---
+swagger: "2.0"
+info:
+  version: "1.0"
+  title: "VPN-api"
+paths:
+  /ipsec/{orgid}/{vpcId}:
+    get:
+      operationId: "ipsecOrgidVpcIdGET"
+      parameters:
+      - name: "username"
+        in: "query"
+        required: true
+        type: "string"
+      - name: "password"
+        in: "query"
+        required: true
+        type: "string"
+      - name: "orgid"
+        in: "path"
+        required: true
+        type: "string"
+      - name: "vpcId"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: "#/definitions/GetVpns"
+          x-amf-mediaType: "application/json"
+      x-swagger-router-controller: "Default"
+    post:
+      operationId: "ipsecOrgidVpcIdPOST"
+      parameters:
+      - name: "username"
+        in: "query"
+        required: true
+        type: "string"
+      - name: "password"
+        in: "query"
+        required: true
+        type: "string"
+      - name: "orgid"
+        in: "path"
+        required: true
+        type: "string"
+      - name: "vpcId"
+        in: "path"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "generated"
+        required: false
+        schema:
+          $ref: "#/definitions/PostVpn"
+        x-amf-mediaType: "application/json"
+      responses:
+        "201":
+          description: "VPN Infrastucture creation pending"
+        "400":
+          description: "bad request"
+        "404":
+          description: "there is no org or VPC with this id"
+      x-swagger-router-controller: "Default"
+  /ipsec/{orgid}/{vpcId}/ipsec/{vpnId}:
+    get:
+      operationId: "ipsecOrgidVpcIdIpsecVpnIdGET"
+      parameters:
+      - name: "username"
+        in: "query"
+        required: true
+        type: "string"
+      - name: "password"
+        in: "query"
+        required: true
+        type: "string"
+      - name: "orgid"
+        in: "path"
+        required: true
+        type: "string"
+      - name: "vpcId"
+        in: "path"
+        required: true
+        type: "string"
+      - name: "vpnId"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: ""
+          schema:
+            $ref: "#/definitions/GetVpn"
+          x-amf-mediaType: "application/json"
+        "404":
+          description: "The orgId, vpcId or vpnId was not found"
+      x-swagger-router-controller: "Default"
+    delete:
+      operationId: "ipsecOrgidVpcIdIpsecVpnIdDELETE"
+      parameters:
+      - name: "username"
+        in: "query"
+        required: true
+        type: "string"
+      - name: "password"
+        in: "query"
+        required: true
+        type: "string"
+      - name: "orgid"
+        in: "path"
+        required: true
+        type: "string"
+      - name: "vpcId"
+        in: "path"
+        required: true
+        type: "string"
+      - name: "vpnId"
+        in: "path"
+        required: true
+        type: "string"
+      responses:
+        "204":
+          description: "Deleted successfully"
+      x-swagger-router-controller: "Default"
+definitions:
+  PostVpn:
+    type: "object"
+    required:
+    - "name"
+    - "remoteIpAddress"
+    properties:
+      name:
+        type: "string"
+      localAsn:
+        type: "integer"
+      remoteAsn:
+        type: "integer"
+      remoteIpAddress:
+        type: "string"
+      remoteNetworks:
+        type: "array"
+        items:
+          type: "string"
+      tunnelConfigs:
+        type: "array"
+        items:
+          $ref: "#/definitions/PostVpn_tunnelConfigs"
+    example:
+      name: "myDatacenterVpn"
+      remoteAsn: 65000
+      remoteIpAddress: "100.100.100.100"
+      remoteNetworks: []
+      tunnelConfigs:
+      - psk: "23847329fn3u__..."
+        ptpCidr: "169.254.12.0/30"
+      - psk: "nsdkjfnsauf23f2linf"
+        ptpCidr: "169.254.12.4/30"
+    additionalProperties: {}
+  GetVpns:
+    type: "object"
+    required:
+    - "total"
+    properties:
+      data:
+        type: "array"
+        items:
+          $ref: "#/definitions/GetVpns_data"
+      total:
+        type: "integer"
+    example:
+      data:
+      - id: "4a6e3da830767b280a80ce33"
+        spec:
+          name: "myDatacenterVpn"
+          remoteIpAddress: "100.100.100.100"
+          routingType: "STATIC"
+          remoteNetworks:
+          - "10.5.0.0/16"
+          tunnelConfigs:
+          - psk: "LKvQAyV7DyR1Q7kZoIAymsqFOh3SWb2S"
+            ptpCidr: "169.254.12.0/30"
+          - psk: "q.NFQABcVnKLp2.zjR7Pw7YtH9gICJlt"
+            ptpCidr: "169.254.12.4/30"
+        state:
+          vpnConnectionStatus: "AVAILABLE"
+          createdAt: "2017-01-01T00:00:01-0800"
+          bgpRoutes: []
+          staticRoutes:
+          - remoteNetwork: "10.5.0.0/16"
+            state: "AVAILABLE"
+          vpnTunnels:
+          - acceptedRouteCount: 1
+            lastStatusChange: "2018-01-13T16:30:07-0800"
+            localExternalIpAddress: "50.112.49.102"
+            localPtpIpAddress: "169.254.13.241"
+            remotePtpIpAddress: "169.254.13.242"
+            psk: "LKvQAyV7DyR1Q7kZoIAymsqFOh3SWb2S"
+            status: "UP"
+            statusMessage: ""
+          - acceptedRouteCount: 1
+            lastStatusChange: "2018-01-13T16:30:07-0800"
+            localExternalIpAddress: "34.216.124.13"
+            localPtpIpAddress: "169.254.15.17"
+            remotePtpIpAddress: "169.254.15.18"
+            psk: "q.NFQABcVnKLp2.zjR7Pw7YtH9gICJlt"
+            status: "DOWN"
+            statusMessage: ""
+      total: 1
+    additionalProperties: {}
+  GetVpn:
+    type: "object"
+    required:
+    - "id"
+    - "state"
+    properties:
+      id:
+        type: "string"
+      spec:
+        $ref: "#/definitions/GetVpns_spec"
+      state:
+        $ref: "#/definitions/GetVpns_state"
+    example:
+      id: "4a6e3da830767b280a80ce33"
+      spec:
+        name: "myDatacenterVpn"
+        remoteAsn: 65000
+        localAsn: 7224
+        remoteIpAddress: "100.100.100.100"
+        routingType: "BGP"
+      state:
+        vpnConnectionStatus: "AVAILABLE"
+        createdAt: "2017-01-01T00:00:01-0800"
+        bgpRoutes:
+        - remoteNetwork: "10.5.0.0/16"
+          state: "ACTIVE"
+        staticRoutes: []
+        vpnTunnels:
+        - acceptedRouteCount: 2
+          lastStatusChange: "2018-01-13T16:30:07-0800"
+          localExternalIpAddress: "50.112.49.102"
+          localPtpIpAddress: "169.254.13.241"
+          remotePtpIpAddress: "169.254.13.242"
+          psk: "LKvQAyV7DyR1Q7kZoIAymsqFOh3SWb2S"
+          status: "UP"
+          statusMessage: ""
+        - acceptedRouteCount: 2
+          lastStatusChange: "2018-01-13T16:30:07-0800"
+          localExternalIpAddress: "34.216.124.13"
+          localPtpIpAddress: "169.254.15.17"
+          remotePtpIpAddress: "169.254.15.18"
+          psk: "q.NFQABcVnKLp2.zjR7Pw7YtH9gICJlt"
+          status: "DOWN"
+          statusMessage: ""
+    additionalProperties: {}
+  PostVpn_tunnelConfigs:
+    type: "object"
+    required:
+    - "psk"
+    - "ptpCidr"
+    properties:
+      psk:
+        type: "string"
+      ptpCidr:
+        type: "string"
+  GetVpns_spec_tunnelConfigs:
+    type: "object"
+    properties:
+      psk:
+        type: "string"
+      ptpCidr:
+        type: "string"
+  GetVpns_spec:
+    type: "object"
+    required:
+    - "routingType"
+    properties:
+      name:
+        type: "string"
+      remoteAsn:
+        type: "integer"
+      localAsn:
+        type: "integer"
+      remoteIpAddress:
+        type: "string"
+      routingType:
+        type: "string"
+      remoteNetworks:
+        type: "array"
+        items:
+          type: "string"
+      tunnelConfigs:
+        type: "array"
+        items:
+          $ref: "#/definitions/GetVpns_spec_tunnelConfigs"
+  GetVpns_state_bgpRoutes:
+    type: "object"
+    required:
+    - "remoteNetwork"
+    - "state"
+    properties:
+      remoteNetwork:
+        type: "string"
+      state:
+        type: "string"
+        enum:
+        - "ACTIVE"
+        - "BLACKHOLE"
+  GetVpns_state_staticRoutes:
+    type: "object"
+    required:
+    - "remoteNetwork"
+    - "state"
+    properties:
+      remoteNetwork:
+        type: "string"
+      state:
+        type: "string"
+        enum:
+        - "PENDING"
+        - "AVAILABLE"
+        - "DELETING"
+        - "DELETED"
+  GetVpns_state_vpnTunnels:
+    type: "object"
+    required:
+    - "acceptedRouteCount"
+    - "lastStatusChange"
+    - "localExternalIpAddress"
+    - "localPtpIpAddress"
+    - "psk"
+    - "remotePtpIpAddress"
+    - "status"
+    properties:
+      acceptedRouteCount:
+        type: "integer"
+      lastStatusChange:
+        type: "string"
+      localExternalIpAddress:
+        type: "string"
+      localPtpIpAddress:
+        type: "string"
+      remotePtpIpAddress:
+        type: "string"
+      psk:
+        type: "string"
+      status:
+        type: "string"
+        enum:
+        - "UP"
+        - "DOWN"
+      statusMessage:
+        type: "string"
+  GetVpns_state:
+    type: "object"
+    properties:
+      vpnConnectionStatus:
+        type: "string"
+        enum:
+        - "PENDING"
+        - "AVAILABLE"
+        - "DELETING"
+        - "DELETED"
+      createdAt:
+        type: "string"
+      bgpRoutes:
+        type: "array"
+        items:
+          $ref: "#/definitions/GetVpns_state_bgpRoutes"
+      staticRoutes:
+        type: "array"
+        items:
+          $ref: "#/definitions/GetVpns_state_staticRoutes"
+      vpnTunnels:
+        type: "array"
+        items:
+          $ref: "#/definitions/GetVpns_state_vpnTunnels"
+  GetVpns_data:
+    type: "object"
+    required:
+    - "id"
+    - "state"
+    properties:
+      id:
+        type: "string"
+      spec:
+        $ref: "#/definitions/GetVpns_spec"
+      state:
+        $ref: "#/definitions/GetVpns_state"
